@@ -59,7 +59,8 @@ async def test_404_for_inactive_client(async_engine, http_client):
                 name="Inactive",
                 origin_url="https://example.com",
                 price_per_request=0.01,
-                fiat_balance=0,
+                pending_balance=0,
+                total_earned=0,
                 is_active=False,
             )
         )

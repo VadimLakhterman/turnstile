@@ -28,7 +28,9 @@ async def test_client_record(async_engine):
             name="Test API",
             origin_url="https://httpbin.org",
             price_per_request=Decimal("0.01"),
-            fiat_balance=Decimal("0"),
+            pending_balance=Decimal("0"),
+            total_earned=Decimal("0"),
+            payout_frequency="monthly",
             is_active=True,
         )
         session.add(client)

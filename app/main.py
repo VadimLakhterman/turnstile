@@ -129,7 +129,8 @@ async def gateway(client_id: UUID, request: Request, db: AsyncSession = Depends(
         client_id=client.id,
     )
     db.add(ledger_entry)
-    client.fiat_balance = Decimal(str(client.fiat_balance)) + verification.amount
+    client.pending_balance = Decimal(str(client.pending_balance)) + verification.amount
+    client.total_earned = Decimal(str(client.total_earned)) + verification.amount
     try:
         await db.commit()
     except Exception:
