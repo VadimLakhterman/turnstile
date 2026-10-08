@@ -263,19 +263,36 @@
 
   <!-- Beta Signup -->
   <section id="beta" class="py-32 px-6 border-t border-white/5">
-    <div class="max-w-lg mx-auto text-center">
+    <div class="max-w-md mx-auto text-center">
       <h2 class="text-3xl md:text-4xl font-bold mb-4">Get early access</h2>
-      <p class="text-slate-400 mb-10">We're onboarding the first cohort of API providers and agent builders.</p>
-      <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST" class="flex flex-col sm:flex-row gap-3">
+      <p class="text-slate-400 mb-10">Leave your details and we'll reach out to get you set up.</p>
+      <form action="https://formsubmit.co/vadikl88@gmail.com" method="POST" class="flex flex-col gap-4 text-left">
+        <input type="hidden" name="_subject" value="Turnstile — New early access request" />
+        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" name="_next" value="https://vadimlakhterman.github.io/turnstile/?submitted=true" />
         <input
-          type="email"
-          name="email"
+          type="text"
+          name="name"
           required
-          placeholder="you@company.com"
-          class="flex-1 px-4 py-3.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          placeholder="Full name"
+          class="w-full px-4 py-3.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         />
-        <button type="submit" class="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 transition rounded-lg font-semibold text-white whitespace-nowrap">
-          Get Access
+        <input
+          type="text"
+          name="company"
+          required
+          placeholder="Company"
+          class="w-full px-4 py-3.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        />
+        <input
+          type="tel"
+          name="phone"
+          required
+          placeholder="Phone number"
+          class="w-full px-4 py-3.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        />
+        <button type="submit" class="w-full px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 transition rounded-lg font-semibold text-white">
+          Request Access
         </button>
       </form>
     </div>
