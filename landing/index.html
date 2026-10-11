@@ -7,13 +7,16 @@
   <meta name="description" content="Turnstile enables AI agents to pay for API access with USDC on Base. Instant on-chain verification. You get fiat." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+          },
         }
       }
     }
@@ -59,6 +62,18 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+    .terminal {
+      background: #0a0a12;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .terminal input[type="range"] { width: 100%; cursor: pointer; }
+    .terminal input[type="number"]::-webkit-inner-spin-button { opacity: 0.4; }
+    .caret::after {
+      content: "▋";
+      margin-left: 2px;
+      animation: blink 1.1s steps(1) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
     code {
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.08);
@@ -78,6 +93,7 @@
         <a href="#how" class="text-sm text-slate-400 hover:text-white transition hidden sm:block">How It Works</a>
         <a href="#for-who" class="text-sm text-slate-400 hover:text-white transition hidden sm:block">Use Cases</a>
         <a href="#protocol" class="text-sm text-slate-400 hover:text-white transition hidden sm:block">Protocol</a>
+        <a href="#calculator" class="text-sm text-slate-400 hover:text-white transition hidden sm:block">Crawler Tax</a>
         <a href="#beta" class="text-sm bg-indigo-600 hover:bg-indigo-500 transition px-4 py-2 rounded-lg text-white font-medium">Join Beta</a>
       </div>
     </div>
@@ -261,6 +277,111 @@
     </div>
   </section>
 
+  <!-- Crawler Tax ROI Calculator -->
+  <section id="calculator" class="py-32 px-6 border-t border-white/5">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl md:text-4xl font-bold text-center mb-6">The Crawler Tax</h2>
+      <p class="text-slate-400 text-center max-w-2xl mx-auto mb-16">
+        AI scrapers hit your API for free, and you pay AWS for every byte they take.
+        See what that costs you, and what the same traffic earns behind an HTTP 402.
+      </p>
+
+      <div class="terminal rounded-2xl overflow-hidden glow font-mono">
+        <!-- Window chrome -->
+        <div class="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-white/[0.02]">
+          <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
+          <span class="w-3 h-3 rounded-full bg-yellow-500/70"></span>
+          <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
+          <span class="ml-3 text-xs text-slate-500 truncate">turnstile ~ crawler-tax --region us-east-1</span>
+        </div>
+
+        <div class="grid lg:grid-cols-2">
+          <!-- Inputs -->
+          <div class="p-6 md:p-10 space-y-10 lg:border-r border-white/5">
+            <p class="text-xs text-slate-500"><span class="text-emerald-400">$</span> configure --traffic</p>
+
+            <div>
+              <div class="flex items-center justify-between gap-4 mb-3">
+                <label for="dailyRequests" class="text-sm text-slate-300">AI bot hits / day</label>
+                <input id="dailyRequestsNum" type="number" min="0" step="1000" inputmode="numeric" aria-label="AI bot hits per day"
+                  class="w-36 text-right bg-white/5 border border-white/10 rounded-md px-2 py-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+              <input id="dailyRequests" type="range" min="1000" max="1000000" step="1000" class="accent-indigo-500" />
+              <div class="flex justify-between text-[11px] text-slate-600 mt-1"><span>1K</span><span>1M</span></div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between gap-4 mb-3">
+                <label for="payloadSizeMB" class="text-sm text-slate-300">Avg response size (MB)</label>
+                <input id="payloadSizeMBNum" type="number" min="0" step="0.1" inputmode="decimal" aria-label="Average response size in megabytes"
+                  class="w-36 text-right bg-white/5 border border-white/10 rounded-md px-2 py-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+              <input id="payloadSizeMB" type="range" min="0.1" max="10" step="0.1" class="accent-indigo-500" />
+              <div class="flex justify-between text-[11px] text-slate-600 mt-1"><span>0.1 MB</span><span>10 MB</span></div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between gap-4 mb-3">
+                <label for="pricePerCall" class="text-sm text-slate-300">Price per call via 402 (USD)</label>
+                <input id="pricePerCallNum" type="number" min="0" step="0.001" inputmode="decimal" aria-label="Price per call in US dollars"
+                  class="w-36 text-right bg-white/5 border border-white/10 rounded-md px-2 py-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+              <input id="pricePerCall" type="range" min="0.001" max="0.1" step="0.001" class="accent-indigo-500" />
+              <div class="flex justify-between text-[11px] text-slate-600 mt-1"><span>$0.001</span><span>$0.10</span></div>
+            </div>
+
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              Assumes AWS data transfer out at $0.09/GB and a 30-day month. 1 GB = 1,024 MB.
+            </p>
+          </div>
+
+          <!-- Results -->
+          <div class="p-6 md:p-10 flex flex-col gap-6">
+            <p class="text-xs text-slate-500"><span class="text-emerald-400">$</span> crawler-tax --report</p>
+
+            <div class="text-xs text-slate-500 space-y-1">
+              <div>egress/day&nbsp;&nbsp;&nbsp;<span id="outDailyGB" class="text-slate-300"></span></div>
+              <div>egress/month&nbsp;<span id="outMonthlyGB" class="text-slate-300"></span></div>
+              <div>calls/month&nbsp;&nbsp;<span id="outMonthlyCalls" class="text-slate-300"></span></div>
+            </div>
+
+            <div class="rounded-xl border border-red-500/20 bg-red-500/[0.04] p-6">
+              <div class="text-xs uppercase tracking-widest text-red-400/80 mb-2">Current AWS Loss</div>
+              <div class="text-3xl md:text-4xl font-bold text-red-500 break-all"><span id="outLoss"></span><span class="text-base text-red-400/70">/mo</span></div>
+              <div class="text-xs text-slate-500 mt-2">Egress you pay to serve scrapers for free.</div>
+            </div>
+
+            <div class="rounded-xl border border-emerald-400/30 bg-emerald-400/[0.05] p-6">
+              <div class="text-xs uppercase tracking-widest text-emerald-400/80 mb-2">Turnstile Revenue</div>
+              <div class="text-3xl md:text-4xl font-bold text-emerald-400 break-all"><span id="outRevenue"></span><span class="text-base text-emerald-400/70">/mo</span></div>
+              <div class="text-xs text-slate-500 mt-2">Same traffic, paid per call in USDC, settled to you in USD.</div>
+            </div>
+
+            <!-- CTA -->
+            <form id="calcForm" action="https://formsubmit.co/vadikl88@gmail.com" method="POST" class="mt-2 flex flex-col sm:flex-row gap-3">
+              <input type="hidden" name="_subject" value="Turnstile — Crawler Tax calculator lead" />
+              <input type="hidden" name="_captcha" value="false" />
+              <input type="hidden" name="_next" value="https://vadimlakhterman.github.io/turnstile/?submitted=true" />
+              <input type="hidden" name="source" value="crawler-tax-calculator" />
+              <input type="hidden" name="daily_requests" id="hidDailyRequests" />
+              <input type="hidden" name="payload_mb" id="hidPayloadSizeMB" />
+              <input type="hidden" name="price_per_call" id="hidPricePerCall" />
+              <input type="hidden" name="monthly_aws_loss" id="hidLoss" />
+              <input type="hidden" name="monthly_projected_revenue" id="hidRevenue" />
+              <label for="calcEmail" class="sr-only">Work email</label>
+              <input id="calcEmail" type="email" name="email" required placeholder="you@company.com" autocomplete="email"
+                class="flex-1 min-w-0 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
+              <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 transition rounded-lg font-semibold text-white font-sans whitespace-nowrap">
+                Get Early Access
+              </button>
+            </form>
+            <p class="text-[11px] text-slate-600 caret">your numbers are sent with your email so we can size your setup</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Beta Signup -->
   <section id="beta" class="py-32 px-6 border-t border-white/5">
     <div class="max-w-md mx-auto text-center">
@@ -309,6 +430,72 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    (() => {
+      const AWS_EGRESS_RATE = 0.09; // USD per GB
+      const DAYS_IN_MONTH = 30;
+
+      const state = { dailyRequests: 150000, payloadSizeMB: 2, pricePerCall: 0.01 };
+
+      const usd = new Intl.NumberFormat('en-US', {
+        style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2,
+      });
+      const num = (digits) => new Intl.NumberFormat('en-US', { maximumFractionDigits: digits });
+
+      function calculate({ dailyRequests, payloadSizeMB, pricePerCall }) {
+        const dailyGB = (dailyRequests * payloadSizeMB) / 1024;
+        const monthlyGB = dailyGB * DAYS_IN_MONTH;
+        const monthlyAwsLoss = monthlyGB * AWS_EGRESS_RATE;
+        const monthlyProjectedRevenue = (dailyRequests * DAYS_IN_MONTH) * pricePerCall;
+        return { dailyGB, monthlyGB, monthlyAwsLoss, monthlyProjectedRevenue };
+      }
+
+      const $ = (id) => document.getElementById(id);
+
+      function render() {
+        const r = calculate(state);
+        $('outDailyGB').textContent = `${num(2).format(r.dailyGB)} GB`;
+        $('outMonthlyGB').textContent = `${num(2).format(r.monthlyGB)} GB`;
+        $('outMonthlyCalls').textContent = num(0).format(state.dailyRequests * DAYS_IN_MONTH);
+        $('outLoss').textContent = `-${usd.format(r.monthlyAwsLoss)}`;
+        $('outRevenue').textContent = `+${usd.format(r.monthlyProjectedRevenue)}`;
+
+        $('hidDailyRequests').value = state.dailyRequests;
+        $('hidPayloadSizeMB').value = state.payloadSizeMB;
+        $('hidPricePerCall').value = state.pricePerCall;
+        $('hidLoss').value = usd.format(r.monthlyAwsLoss);
+        $('hidRevenue').value = usd.format(r.monthlyProjectedRevenue);
+      }
+
+      // Each input is a slider + number field pair kept in sync. The number field may go
+      // past the slider's range; the slider then just pins to its end.
+      for (const key of Object.keys(state)) {
+        const slider = $(key);
+        const field = $(`${key}Num`);
+        slider.value = state[key];
+        field.value = state[key];
+
+        slider.addEventListener('input', () => {
+          state[key] = Number(slider.value);
+          field.value = slider.value;
+          render();
+        });
+
+        field.addEventListener('input', () => {
+          const v = Number(field.value);
+          if (field.value === '' || !Number.isFinite(v) || v < 0) return;
+          state[key] = v;
+          slider.value = v;
+          render();
+        });
+
+        field.addEventListener('blur', () => { field.value = state[key]; });
+      }
+
+      render();
+    })();
+  </script>
 
 </body>
 </html>
