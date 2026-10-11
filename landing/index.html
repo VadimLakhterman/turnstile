@@ -68,12 +68,6 @@
     }
     .terminal input[type="range"] { width: 100%; cursor: pointer; }
     .terminal input[type="number"]::-webkit-inner-spin-button { opacity: 0.4; }
-    .caret::after {
-      content: "▋";
-      margin-left: 2px;
-      animation: blink 1.1s steps(1) infinite;
-    }
-    @keyframes blink { 50% { opacity: 0; } }
     code {
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.08);
@@ -356,26 +350,6 @@
               <div class="text-3xl md:text-4xl font-bold text-emerald-400 break-all"><span id="outRevenue"></span><span class="text-base text-emerald-400/70">/mo</span></div>
               <div class="text-xs text-slate-500 mt-2">Same traffic, paid per call in USDC, settled to you in USD.</div>
             </div>
-
-            <!-- CTA -->
-            <form id="calcForm" action="https://formsubmit.co/vadikl88@gmail.com" method="POST" class="mt-2 flex flex-col sm:flex-row gap-3">
-              <input type="hidden" name="_subject" value="Turnstile — Crawler Tax calculator lead" />
-              <input type="hidden" name="_captcha" value="false" />
-              <input type="hidden" name="_next" value="https://vadimlakhterman.github.io/turnstile/?submitted=true" />
-              <input type="hidden" name="source" value="crawler-tax-calculator" />
-              <input type="hidden" name="daily_requests" id="hidDailyRequests" />
-              <input type="hidden" name="payload_mb" id="hidPayloadSizeMB" />
-              <input type="hidden" name="price_per_call" id="hidPricePerCall" />
-              <input type="hidden" name="monthly_aws_loss" id="hidLoss" />
-              <input type="hidden" name="monthly_projected_revenue" id="hidRevenue" />
-              <label for="calcEmail" class="sr-only">Work email</label>
-              <input id="calcEmail" type="email" name="email" required placeholder="you@company.com" autocomplete="email"
-                class="flex-1 min-w-0 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
-              <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 transition rounded-lg font-semibold text-white font-sans whitespace-nowrap">
-                Get Early Access
-              </button>
-            </form>
-            <p class="text-[11px] text-slate-600 caret">your numbers are sent with your email so we can size your setup</p>
           </div>
         </div>
       </div>
@@ -460,12 +434,6 @@
         $('outMonthlyCalls').textContent = num(0).format(state.dailyRequests * DAYS_IN_MONTH);
         $('outLoss').textContent = `-${usd.format(r.monthlyAwsLoss)}`;
         $('outRevenue').textContent = `+${usd.format(r.monthlyProjectedRevenue)}`;
-
-        $('hidDailyRequests').value = state.dailyRequests;
-        $('hidPayloadSizeMB').value = state.payloadSizeMB;
-        $('hidPricePerCall').value = state.pricePerCall;
-        $('hidLoss').value = usd.format(r.monthlyAwsLoss);
-        $('hidRevenue').value = usd.format(r.monthlyProjectedRevenue);
       }
 
       // Each input is a slider + number field pair kept in sync. The number field may go
