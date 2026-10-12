@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     USDC_CONTRACT: str = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     DEFAULT_PRICE_USD: str = "0.01"
     CHAIN_ID: int = 8453
+    LOG_LEVEL: str = "INFO"
 
     @field_validator("PLATFORM_WALLET")
     @classmethod

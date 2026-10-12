@@ -1,16 +1,37 @@
 import uuid
+from collections.abc import AsyncIterator, Iterator
 from decimal import Decimal
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 
-import httpx as httpx_lib
+import httpx
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from fastapi import FastAPI
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
-from app.models import Base, Client
+from app.core.app_factory import create_app
+from app.core.config import Settings
+from app.core.provider import get_gateway_service
+from app.domain.gateway_service import GatewayService
+from app.domain.models import PaymentVerification, ProxyResponse
+from app.providers.db_models import Base, Client
+from app.providers.sql_client_repository import SqlClientRepository
+
+CLIENT_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
+INACTIVE_CLIENT_ID = uuid.UUID("22222222-2222-2222-2222-222222222222")
+ORIGIN_URL = "https://origin.example.com/api"
+PLATFORM_WALLET = "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18"
+USDC_CONTRACT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+CHAIN_ID = 8453
+TX_HASH = "0x" + "ab" * 32
 
 
 @pytest.fixture
-async def async_engine():
+def settings() -> Settings:
+    return Settings(_env_file=None, PLATFORM_WALLET=PLATFORM_WALLET, USDC_CONTRACT=USDC_CONTRACT, CHAIN_ID=CHAIN_ID)
+
+
+@pytest.fixture
+async def async_engine() -> AsyncIterator[AsyncEngine]:
     engine = create_async_engine("sqlite+aiosqlite:///:memory:")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -19,71 +40,82 @@ async def async_engine():
 
 
 @pytest.fixture
-async def test_client_record(async_engine):
-    """Create a test Client row and return it."""
-    session_factory = async_sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
+def session_factory(async_engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+    return async_sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
+
+
+@pytest.fixture
+async def seeded_clients(session_factory: async_sessionmaker[AsyncSession]) -> None:
     async with session_factory() as session:
-        client = Client(
-            id=uuid.UUID("11111111-1111-1111-1111-111111111111"),
-            name="Test API",
-            origin_url="https://httpbin.org",
-            price_per_request=Decimal("0.01"),
-            pending_balance=Decimal("0"),
-            total_earned=Decimal("0"),
-            payout_frequency="monthly",
-            is_active=True,
+        session.add_all(
+            [
+                Client(
+                    id=CLIENT_ID,
+                    name="Test API",
+                    origin_url=ORIGIN_URL,
+                    price_per_request=Decimal("0.01"),
+                    pending_balance=Decimal("0"),
+                    total_earned=Decimal("0"),
+                    is_active=True,
+                ),
+                Client(
+                    id=INACTIVE_CLIENT_ID,
+                    name="Inactive",
+                    origin_url=ORIGIN_URL,
+                    price_per_request=Decimal("0.01"),
+                    pending_balance=Decimal("0"),
+                    total_earned=Decimal("0"),
+                    is_active=False,
+                ),
+            ]
         )
-        session.add(client)
         await session.commit()
-    return client
 
 
 @pytest.fixture
-def app_with_db(async_engine, test_client_record):
-    """Create a FastAPI test app wired to the in-memory DB."""
-    from app.database import get_db
-    from app.main import app
-
-    session_factory = async_sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
-
-    async def override_get_db():
-        async with session_factory() as session:
-            yield session
-
-    app.dependency_overrides[get_db] = override_get_db
-    yield app
-    app.dependency_overrides.clear()
+def client_repository(session_factory: async_sessionmaker[AsyncSession], seeded_clients: None) -> SqlClientRepository:
+    return SqlClientRepository(session_factory)
 
 
 @pytest.fixture
-def http_client(app_with_db):
-    """HTTPX AsyncClient bound to the test app."""
-    return httpx_lib.AsyncClient(transport=httpx_lib.ASGITransport(app=app_with_db), base_url="http://test")
+def mock_verifier() -> AsyncMock:
+    verifier = AsyncMock()
+    verifier.verify.return_value = PaymentVerification(verified=True, amount=Decimal("0.01"))
+    return verifier
 
 
 @pytest.fixture
-def mock_upstream(app_with_db):
-    """Mock upstream HTTP client on app.state to avoid real origin calls."""
-    mock_response = httpx_lib.Response(200, json={"proxied": True}, headers={"content-type": "application/json"})
-    mock_client = AsyncMock()
-    mock_client.post = AsyncMock(return_value=mock_response)
-    app_with_db.state.http_client = mock_client
-    return mock_client
+def mock_proxy() -> AsyncMock:
+    proxy = AsyncMock()
+    proxy.forward.return_value = ProxyResponse(
+        status_code=200, content=b'{"proxied": true}', headers={"content-type": "application/json"}
+    )
+    return proxy
 
 
 @pytest.fixture
-def mock_verify_success():
-    from app.verifier import VerificationResult
-
-    result = VerificationResult(verified=True, amount=Decimal("0.01"))
-    with patch("app.main.verify_usdc_payment", new_callable=AsyncMock, return_value=result) as mock:
-        yield mock
+def gateway_service(client_repository: SqlClientRepository, mock_verifier: AsyncMock, mock_proxy: AsyncMock) -> GatewayService:
+    return GatewayService(
+        clients=client_repository,
+        verifier=mock_verifier,
+        proxy=mock_proxy,
+        platform_wallet=PLATFORM_WALLET,
+        usdc_contract=USDC_CONTRACT,
+        chain_id=CHAIN_ID,
+    )
 
 
 @pytest.fixture
-def mock_verify_failure():
-    from app.verifier import VerificationResult
+def app(settings: Settings, gateway_service: GatewayService) -> Iterator[FastAPI]:
+    """App wired to the in-memory DB and mocked verifier/proxy. Lifespan is not run, so no real IO."""
+    application = create_app(settings)
+    application.dependency_overrides[get_gateway_service] = lambda: gateway_service
+    yield application
+    application.dependency_overrides.clear()
 
-    result = VerificationResult(verified=False, amount=Decimal("0"), error="No matching USDC transfer found")
-    with patch("app.main.verify_usdc_payment", new_callable=AsyncMock, return_value=result) as mock:
-        yield mock
+
+@pytest.fixture
+async def http_client(app: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
+    transport = httpx.ASGITransport(app=app, raise_app_exceptions=False)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client

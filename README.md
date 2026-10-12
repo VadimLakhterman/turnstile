@@ -58,11 +58,15 @@ Requires `X-Payment` header containing the USDC transaction hash. Returns:
 | Status | Meaning |
 |--------|---------|
 | 200 | Payment verified, proxied response from origin |
-| 400 | Payment verification failed |
+| 400 | Payment verification failed (invalid/unknown tx hash, wrong recipient, insufficient amount) |
 | 402 | Missing `X-Payment` header |
 | 404 | Unknown or inactive client |
 | 409 | Transaction hash already used |
+| 500 | Payment could not be recorded / internal error |
 | 502 | Origin or RPC unavailable |
+
+Error bodies have the shape `{"error": "...", "detail": "...", "correlation_id": "..."}`. Every response carries an
+`X-Request-ID` header (echoed from the request if supplied); use it to find the matching log line.
 
 ### `GET /healthz`
 
@@ -93,26 +97,30 @@ cp .env.example .env
 # Run the server
 uv run uvicorn app.main:app --reload
 
-# Run tests
-uv run pytest tests/ -v
-
-# Lint
+# Checks (all enforced in CI)
+uv run pytest
 uv run ruff check .
+uv run ruff format --check .
+uv run mypy
 ```
 
 ### Docker Compose
 
+Local development (fixed throwaway DB credentials, source mounted with auto-reload):
+
 ```bash
-cp .env.example .env
-# Edit .env — set PLATFORM_WALLET
-
-docker compose up --build -d
-
-# Verify
+cp .env.example .env    # set PLATFORM_WALLET
+docker compose -f docker-compose.local.yml up --build -d
 curl localhost:8000/healthz
 ```
 
-This starts PostgreSQL and the API server. The database schema is created automatically on startup.
+Production-like stack (`docker/Dockerfile`, credentials from `.env` — set `POSTGRES_USER`/`POSTGRES_PASSWORD`):
+
+```bash
+docker compose up --build -d
+```
+
+The database schema is created automatically on startup.
 
 ## Environment Variables
 
@@ -124,18 +132,30 @@ This starts PostgreSQL and the API server. The database schema is created automa
 | `USDC_CONTRACT` | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | USDC token contract address on Base |
 | `DEFAULT_PRICE_USD` | `0.01` | Default price per request in USD |
 | `CHAIN_ID` | `8453` | Chain ID returned in payment instructions |
+| `LOG_LEVEL` | `INFO` | Python log level |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | — | Only used by `docker-compose.yml` |
 
 ## Project Structure
 
+Layered architecture per [`developer_guide.md`](developer_guide.md):
+
 ```
 app/
-  main.py        — FastAPI app, gateway routes, proxy logic
-  verifier.py    — On-chain USDC transfer verification via web3.py
-  models.py      — SQLAlchemy models (Client, TransactionLedger)
-  schemas.py     — Pydantic request/response models
-  config.py      — Settings from environment variables
-  database.py    — Async SQLAlchemy engine and session
-tests/
-  test_gateway.py  — Gateway route tests
-  test_verifier.py — On-chain verification tests
+  main.py                    — entrypoint only (create_app)
+  api/v1/                    — transport: routes (gateway, health), deps
+  core/                      — config, app factory, DI wiring (provider.py), error handlers, correlation-ID middleware, logging
+  domain/                    — pure Python: GatewayService, entities, interfaces (Protocols), domain errors
+  providers/                 — external IO: SQLAlchemy repository + ORM models, web3 verifier, httpx origin proxy
+  schemas/                   — Pydantic request/response models
+docker/
+  Dockerfile                 — production image (uv.lock, non-root)
+  Dockerfile.local           — development image (dev deps, --reload)
+tests/                       — mirrors app/ (api/v1, core, domain, providers)
 ```
+
+### Deviations from the developer guide
+
+- **CI runner**: `.github/workflows/ci.yml` uses `ubuntu-latest` instead of `ci-cd-runner` — this is a personal repo
+  without access to the org's larger runners.
+- **Developer guide location**: kept at the repo root (`developer_guide.md`) rather than `docs/developer-guide.md`.
+- **Schema management**: tables are created with `create_all` on startup; there are no migrations yet.
