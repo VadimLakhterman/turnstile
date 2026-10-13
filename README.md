@@ -139,3 +139,12 @@ tests/
   test_gateway.py  — Gateway route tests
   test_verifier.py — On-chain verification tests
 ```
+
+## Landing page
+
+`landing/` is deployed to GitHub Pages on every push to `main` that touches it. Its styles are a compiled
+Tailwind file (`landing/tailwind.css`); after changing classes in `landing/index.html`, rebuild it:
+
+```bash
+npx --yes tailwindcss@3.4.17 -c landing-build/tailwind.config.js -i landing-build/input.css -o landing/tailwind.css --minify
+```
