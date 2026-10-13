@@ -182,6 +182,31 @@
           <div class="text-sm text-slate-400 mt-2">sites tell AI crawlers to stay out</div>
         </div>
       </div>
+
+      <!-- Blocking by site size -->
+      <div class="mt-20 max-w-3xl mx-auto">
+        <h3 class="text-xl md:text-2xl font-semibold text-center mb-2">The bigger the site, the more likely it blocks</h3>
+        <p class="text-sm text-slate-500 text-center mb-8">Sites grouped by popularity rank (#1 = most visited site on the web)</p>
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+          <table class="w-full text-sm" id="size-table">
+            <thead class="text-slate-400 text-left">
+              <tr class="border-b border-white/10">
+                <th class="px-4 py-3 font-medium">Site size</th>
+                <th class="px-4 py-3 font-medium text-right">Sites checked</th>
+                <th class="px-4 py-3 font-medium">Block AI agents</th>
+              </tr>
+            </thead>
+            <tbody class="text-slate-300">
+              <tr class="border-b border-white/5"><td class="px-4 py-3">Very large <span class="text-slate-500">(top 10K)</span></td><td class="px-4 py-3 text-right tabular-nums">142</td><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-2 rounded-full bg-indigo-400" style="width:51%"></div><span class="tabular-nums font-semibold">51%</span></div></td></tr>
+              <tr class="border-b border-white/5"><td class="px-4 py-3">Large <span class="text-slate-500">(10K&ndash;50K)</span></td><td class="px-4 py-3 text-right tabular-nums">448</td><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-2 rounded-full bg-indigo-400" style="width:38%"></div><span class="tabular-nums font-semibold">38%</span></div></td></tr>
+              <tr class="border-b border-white/5"><td class="px-4 py-3">Mid-size <span class="text-slate-500">(50K&ndash;250K)</span></td><td class="px-4 py-3 text-right tabular-nums">686</td><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-2 rounded-full bg-indigo-400" style="width:32%"></div><span class="tabular-nums font-semibold">32%</span></div></td></tr>
+              <tr class="border-b border-white/5"><td class="px-4 py-3">Smaller <span class="text-slate-500">(250K&ndash;500K)</span></td><td class="px-4 py-3 text-right tabular-nums">261</td><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-2 rounded-full bg-indigo-400" style="width:23%"></div><span class="tabular-nums font-semibold">23%</span></div></td></tr>
+              <tr><td class="px-4 py-3">Small <span class="text-slate-500">(500K&ndash;1M)</span></td><td class="px-4 py-3 text-right tabular-nums">881</td><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-2 rounded-full bg-indigo-400" style="width:15%"></div><span class="tabular-nums font-semibold">15%</span></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <p class="mt-16 text-lg text-slate-300 text-center max-w-2xl mx-auto leading-relaxed">
         Blocking is a yes-or-no switch: the agents that would pay leave, and the scrapers that get through take it for free.
         Turnstile adds a third option &mdash; let agents in, and get paid for every request.
@@ -189,6 +214,7 @@
       <p class="mt-8 text-xs text-slate-500 text-center max-w-2xl mx-auto">
         Turnstile scan, October 2026: 1,741 domains, 1,531 answered. &ldquo;Block&rdquo; means bot protection on content pages
         or AI crawlers disallowed in robots.txt. Category figures: 44 price-comparison sites, 155 car marketplaces.
+        Size table: 2,418 ranked sites; popularity rank from the Tranco list.
       </p>
     </div>
   </section>
