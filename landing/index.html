@@ -165,7 +165,7 @@
           <div class="text-sm text-slate-400 mt-2">of sites already block AI agents</div>
         </div>
         <div>
-          <div class="text-4xl md:text-5xl font-bold stat-number">37%</div>
+          <div class="text-4xl md:text-5xl font-bold stat-number">~40%</div>
           <div class="text-sm text-slate-400 mt-2">of the world&rsquo;s 10,000 most visited websites</div>
         </div>
         <div>
@@ -175,6 +175,22 @@
         <div>
           <div class="text-4xl md:text-5xl font-bold stat-number">1 in 6</div>
           <div class="text-sm text-slate-400 mt-2">top websites tell AI crawlers to stay out</div>
+        </div>
+      </div>
+
+      <!-- Big names already keeping AI crawlers out -->
+      <div class="mt-16 text-center">
+        <p class="text-sm text-slate-400 mb-4">Already telling the major AI crawlers to stay out:</p>
+        <div class="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto">
+          <span class="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-slate-300">Amazon</span>
+          <span class="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-slate-300">The New York Times</span>
+          <span class="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-slate-300">CNN</span>
+          <span class="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-slate-300">LinkedIn</span>
+          <span class="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-slate-300">X</span>
+          <span class="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-slate-300">Pinterest</span>
+          <span class="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-slate-300">Reuters</span>
+          <span class="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-slate-300">The Wall Street Journal</span>
+          <span class="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-slate-300">IMDb</span>
         </div>
       </div>
 
@@ -192,7 +208,7 @@
               </tr>
             </thead>
             <tbody class="text-slate-300">
-              <tr class="border-b border-white/5"><td class="px-4 py-3">Very large <span class="text-slate-500">(top 10K)</span></td><td class="px-4 py-3 text-right tabular-nums">5,723</td><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-2 rounded-full bg-indigo-400" style="width:37%"></div><span class="tabular-nums font-semibold">37%</span></div></td></tr>
+              <tr class="border-b border-white/5"><td class="px-4 py-3">Very large <span class="text-slate-500">(top 10K)</span></td><td class="px-4 py-3 text-right tabular-nums">5,947</td><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-2 rounded-full bg-indigo-400" style="width:39%"></div><span class="tabular-nums font-semibold">39%</span></div></td></tr>
               <tr class="border-b border-white/5"><td class="px-4 py-3">Large <span class="text-slate-500">(10K&ndash;50K)</span></td><td class="px-4 py-3 text-right tabular-nums">513</td><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-2 rounded-full bg-indigo-400" style="width:39%"></div><span class="tabular-nums font-semibold">39%</span></div></td></tr>
               <tr class="border-b border-white/5"><td class="px-4 py-3">Mid-size <span class="text-slate-500">(50K&ndash;250K)</span></td><td class="px-4 py-3 text-right tabular-nums">3,018</td><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-2 rounded-full bg-indigo-400" style="width:29%"></div><span class="tabular-nums font-semibold">29%</span></div></td></tr>
               <tr class="border-b border-white/5"><td class="px-4 py-3">Smaller <span class="text-slate-500">(250K&ndash;500K)</span></td><td class="px-4 py-3 text-right tabular-nums">4,166</td><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-2 rounded-full bg-indigo-400" style="width:21%"></div><span class="tabular-nums font-semibold">21%</span></div></td></tr>
@@ -208,9 +224,11 @@
       </p>
       <p class="mt-8 text-xs text-slate-500 text-center max-w-2xl mx-auto">
         Turnstile scans, October 2026: 11,741 domains, mostly listings, jobs, travel and price sites (9,784 answered), plus all of the
-        10,000 most visited domains (5,723 real websites once CDN, ad and API hosts are excluded). &ldquo;Block&rdquo; means bot protection on content pages
+        10,000 most visited domains: 5,947 websites once CDN, ad and API hosts are excluded, counting sites that ban all
+        unknown bots while letting search engines in (36% counting only the 5,683 sites we could open). Named sites: their
+        own robots.txt blocks GPTBot, ClaudeBot and PerplexityBot, as checked 13 Oct 2026. &ldquo;Block&rdquo; means bot protection on content pages
         or AI crawlers disallowed in robots.txt. Category figures: 1,308 car sites and 103 classifieds sites.
-        Popularity rank from the Tranco list; the top-10K row covers all 5,723 websites.
+        Popularity rank from the Tranco list; the top-10K row covers all 5,947 websites.
       </p>
     </div>
   </section>
