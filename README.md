@@ -148,3 +148,6 @@ Tailwind file (`landing/tailwind.css`); after changing classes in `landing/index
 ```bash
 npx --yes tailwindcss@3.4.17 -c landing-build/tailwind.config.js -i landing-build/input.css -o landing/tailwind.css --minify
 ```
+
+Then bump the `?v=` on the `tailwind.css` link in `landing/index.html` (first 8 characters of
+`shasum -a 256 landing/tailwind.css`), so browsers holding the old file fetch the new one.
